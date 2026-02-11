@@ -1,0 +1,31 @@
+---
+- name: Update apt cache and upgrade packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install baseline administrative tools
+  apt:
+    name:
+      - curl
+      - git
+      - htop
+      - auditd
+      - fail2ban
+    state: present
+
+- name: Enforce SSH security (CIS Benchmark)
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
+    - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no' }
+  notify: restart_sshd
+
+- name: Ensure Auditd is running for compliance logging
+  service:
+    name: auditd
+    state: started
+    enabled: yes

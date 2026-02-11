@@ -1,7 +1,7 @@
 name: Infrastructure Dry Run (Check Mode)
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main] # Fixed spacing here
 
 jobs:
   test:

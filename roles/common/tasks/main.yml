@@ -1,11 +1,11 @@
 ---
 - name: Update apt cache and upgrade packages
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
     upgrade: dist
 
 - name: Install baseline administrative tools
-  apt:
+  ansible.builtin.apt:
     name:
       - curl
       - git
@@ -15,17 +15,18 @@
     state: present
 
 - name: Enforce SSH security (CIS Benchmark)
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
+    state: present
   loop:
     - { regexp: '^PermitRootLogin', line: 'PermitRootLogin no' }
     - { regexp: '^PasswordAuthentication', line: 'PasswordAuthentication no' }
-  notify: restart_sshd
+  notify: Restart sshd
 
 - name: Ensure Auditd is running for compliance logging
-  service:
+  ansible.builtin.service:
     name: auditd
     state: started
-    enabled: yes
+    enabled: true

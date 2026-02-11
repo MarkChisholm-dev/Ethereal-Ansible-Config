@@ -1,0 +1,10 @@
+---
+- name: Configure Ethereal HPC Compute Nodes
+  hosts: compute_nodes
+  become: true
+  gather_facts: true
+
+  roles:
+    - common
+    - nvidia_gpu
+    - hpc_tuning

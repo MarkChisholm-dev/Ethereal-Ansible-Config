@@ -1,5 +1,7 @@
 # Ethereal: Ansible Node Configurator
 
+[![Ansible Linting (Quality Gate)](https://github.com/MarkChisholm-dev/Ethereal-Ansible-Config/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/MarkChisholm-dev/Ethereal-Ansible-Config/actions/workflows/ansible-lint.yml)
+
 [![Ansible](https://img.shields.io/badge/ansible-%23EE0000.svg?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
 [![Compliance: TPN](https://img.shields.io/badge/Compliance-TPN--Ready-red?style=for-the-badge)](https://www.ttpn.org/)
 

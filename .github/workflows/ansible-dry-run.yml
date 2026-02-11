@@ -1,0 +1,29 @@
+name: Infrastructure Dry Run (Check Mode)
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Ansible
+        run: pip install ansible
+
+      - name: Run Playbook Syntax Check
+        run: ansible-playbook site.yml --syntax-check
+
+      - name: Run Playbook Dry Run
+        run: |
+          # In a real environment, we'd use a Vault password secret here
+          ansible-playbook site.yml -i inventory.ini --check
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"

@@ -1,0 +1,8 @@
+---
+# Ethereal Cloud Systems - GPU Handlers
+# Standardized reboot logic for driver initialization
+
+- name: Reboot node
+  ansible.builtin.reboot:
+    msg: "Ethereal System: Rebooting to initialize NVIDIA drivers"
+    reboot_timeout: 600

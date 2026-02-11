@@ -16,12 +16,11 @@
     name: nvidia-headless-535-server
     state: present
   register: nvidia_gpu_driver_install
+  notify: Reboot node  # <--- This triggers the handler automatically
 
 - name: Enable Persistence Mode for GPU Performance
   ansible.builtin.command: nvidia-smi -pm 1
   changed_when: false
 
-- name: Reboot if driver was installed
-  ansible.builtin.reboot:
-    msg: "Rebooting to initialize NVIDIA drivers"
-  when: nvidia_gpu_driver_install.changed
+# THE REBOOT TASK IS REMOVED FROM HERE
+# The linter will now pass because the logic is handled by the 'notify' above

@@ -16,11 +16,9 @@
     name: nvidia-headless-535-server
     state: present
   register: nvidia_gpu_driver_install
-  notify: Reboot node  # <--- This triggers the handler automatically
+  notify: Reboot node
 
 - name: Enable Persistence Mode for GPU Performance
   ansible.builtin.command: nvidia-smi -pm 1
+  # Use false (lowercase) to satisfy the truthy linter rule
   changed_when: false
-
-# THE REBOOT TASK IS REMOVED FROM HERE
-# The linter will now pass because the logic is handled by the 'notify' above

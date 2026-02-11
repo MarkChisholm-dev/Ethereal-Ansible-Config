@@ -1,0 +1,25 @@
+---
+- name: Install dependencies for NVIDIA drivers
+  apt:
+    name: ["build-essential", "linux-headers-{{ ansible_kernel }}"]
+    state: present
+
+- name: Add NVIDIA CUDA repository
+  apt_repository:
+    repo: "ppa:graphics-drivers/ppa"
+    state: present
+
+- name: Install Headless NVIDIA Server Drivers
+  apt:
+    name: nvidia-headless-535-server
+    state: present
+  register: driver_install
+
+- name: Reboot if driver was installed
+  reboot:
+    msg: "Rebooting to initialize NVIDIA drivers"
+  when: driver_install.changed
+
+- name: Enable Persistence Mode for GPU Performance
+  shell: nvidia-smi -pm 1
+  changed_when: false

@@ -9,19 +9,19 @@
 
 - name: Install dependencies for NVIDIA drivers
   ansible.builtin.apt:
-    name: "{{ ['build-essential'] + (['linux-headers-' ~ ansible_kernel] if nvidia_install_kernel_headers else []) }}"
+    name: "{{ ['build-essential'] + (['linux-headers-' ~ ansible_kernel] if nvidia_gpu_install_kernel_headers else []) }}"
     state: present
   when: nvidia_gpu_enabled | bool
 
 - name: Add NVIDIA driver repository
   ansible.builtin.apt_repository:
-    repo: "{{ nvidia_driver_apt_repo }}"
+    repo: "{{ nvidia_gpu_driver_apt_repo }}"
     state: present
   when: nvidia_gpu_enabled | bool
 
 - name: Install headless NVIDIA server driver package
   ansible.builtin.apt:
-    name: "{{ nvidia_driver_package }}"
+    name: "{{ nvidia_gpu_driver_package }}"
     state: present
   when: nvidia_gpu_enabled | bool
   notify: Reboot node
@@ -39,7 +39,7 @@
   failed_when: false
   when:
     - nvidia_gpu_enabled | bool
-    - nvidia_enable_persistence_mode | bool
+    - nvidia_gpu_enable_persistence_mode | bool
     - not ansible_check_mode
     - nvidia_smi_binary.stat.exists
 
@@ -48,7 +48,7 @@
   changed_when: false
   when:
     - nvidia_gpu_enabled | bool
-    - nvidia_enable_persistence_mode | bool
+    - nvidia_gpu_enable_persistence_mode | bool
     - not ansible_check_mode
     - nvidia_smi_binary.stat.exists
     - nvidia_gpu_detect.rc == 0

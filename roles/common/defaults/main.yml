@@ -1,0 +1,17 @@
+---
+common_apt_cache_valid_time: 3600
+common_perform_dist_upgrade: false
+common_ssh_service_name: ssh
+
+common_baseline_packages:
+  - curl
+  - git
+  - htop
+  - auditd
+  - fail2ban
+
+common_ssh_hardening_rules:
+  - regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  - regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication no'

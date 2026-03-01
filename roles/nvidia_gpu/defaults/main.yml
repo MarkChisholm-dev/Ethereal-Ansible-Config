@@ -1,0 +1,6 @@
+---
+nvidia_gpu_enabled: true
+nvidia_install_kernel_headers: true
+nvidia_enable_persistence_mode: true
+nvidia_driver_apt_repo: "ppa:graphics-drivers/ppa"
+nvidia_driver_package: nvidia-headless-535-server

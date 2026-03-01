@@ -1,7 +1,7 @@
 name: Infrastructure Dry Run (Check Mode)
 on:
   pull_request:
-    branches: [main] # Fixed spacing here
+    branches: [main]
 
 jobs:
   test:
@@ -11,19 +11,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install Ansible
-        run: pip install ansible
+      - name: Install Ansible dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible-core==2.17.6
+
+      - name: Install required Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
+
+      - name: Create CI inventory
+        run: |
+          mkdir -p .ci
+          cat > .ci/inventory.ini << 'EOF'
+          [compute_nodes]
+          localhost ansible_connection=local
+          EOF
 
       - name: Run Playbook Syntax Check
-        run: ansible-playbook site.yml --syntax-check
+        run: ansible-playbook site.yml -i .ci/inventory.ini --syntax-check
 
       - name: Run Playbook Dry Run
-        run: |
-          # In a real environment, we'd use a Vault password secret here
-          ansible-playbook site.yml -i inventory.ini --check
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: ansible-playbook site.yml -i .ci/inventory.ini --check -e nvidia_gpu_enabled=false

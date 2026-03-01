@@ -1,24 +1,54 @@
 ---
+- name: Validate NVIDIA role platform prerequisites
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.os_family == 'Debian'
+      - ansible_facts.distribution == 'Ubuntu'
+    fail_msg: "nvidia_gpu role currently supports Ubuntu/Debian-family hosts only."
+  when: nvidia_gpu_enabled | bool
+
 - name: Install dependencies for NVIDIA drivers
   ansible.builtin.apt:
-    name:
-      - build-essential
-      - "linux-headers-{{ ansible_kernel }}"
+    name: "{{ ['build-essential'] + (['linux-headers-' ~ ansible_kernel] if nvidia_install_kernel_headers else []) }}"
     state: present
+  when: nvidia_gpu_enabled | bool
 
-- name: Add NVIDIA CUDA repository
+- name: Add NVIDIA driver repository
   ansible.builtin.apt_repository:
-    repo: "ppa:graphics-drivers/ppa"
+    repo: "{{ nvidia_driver_apt_repo }}"
     state: present
+  when: nvidia_gpu_enabled | bool
 
-- name: Install Headless NVIDIA Server Drivers
+- name: Install headless NVIDIA server driver package
   ansible.builtin.apt:
-    name: nvidia-headless-535-server
+    name: "{{ nvidia_driver_package }}"
     state: present
-  register: nvidia_gpu_driver_install
+  when: nvidia_gpu_enabled | bool
   notify: Reboot node
 
-- name: Enable Persistence Mode for GPU Performance
-  ansible.builtin.command: nvidia-smi -pm 1
-  # Use false (lowercase) to satisfy the truthy linter rule
+- name: Check whether nvidia-smi is available
+  ansible.builtin.stat:
+    path: /usr/bin/nvidia-smi
+  register: nvidia_smi_binary
+  when: nvidia_gpu_enabled | bool
+
+- name: Detect available NVIDIA GPUs
+  ansible.builtin.command: nvidia-smi -L
+  register: nvidia_gpu_detect
   changed_when: false
+  failed_when: false
+  when:
+    - nvidia_gpu_enabled | bool
+    - nvidia_enable_persistence_mode | bool
+    - not ansible_check_mode
+    - nvidia_smi_binary.stat.exists
+
+- name: Enable persistence mode for GPU performance
+  ansible.builtin.command: nvidia-smi -pm 1
+  changed_when: false
+  when:
+    - nvidia_gpu_enabled | bool
+    - nvidia_enable_persistence_mode | bool
+    - not ansible_check_mode
+    - nvidia_smi_binary.stat.exists
+    - nvidia_gpu_detect.rc == 0
